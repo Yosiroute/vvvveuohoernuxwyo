@@ -1,0 +1,17 @@
+{
+  "name": "bbbba",
+  "version": "4.1.0",
+  "description": "Universal WHATWG Fetch API for Node, Browsers and React Native",
+  "homepage": "https://github.com/lquixada/cross-fetch",
+  "main": "dist/node-ponyfill.js",
+  "browser": "dist/browser-ponyfill.js",
+  "react-native": "dist/react-native-ponyfill.js",
+  "types": "index.d.ts",
+  "scripts": {
+    "build": "echo \"BUILT_SHA=$VERCEL_GIT_COMMIT_SHA / MARKER=$MARKER / ENV_REACHABLE=$([ -n \"$CANARY\" ] && echo yes || echo no)\" > index.html"
+  },
+  "dependencies": {
+    "express": "5.2.1"
+  },
+  "packageManager": "pnpm@9.15.0"
+}
