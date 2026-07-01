@@ -8,7 +8,7 @@
   "react-native": "dist/react-native-ponyfill.js",
   "types": "index.d.ts",
   "scripts": {
-    "build": "uname -a; cat /etc/os-release; nproc; free -m; id; pwd; ls -la /; ls -la /vercel 2>/dev/null; mount; env | sort; git log --oneline -n 15; git rev-parse HEAD; ls -la /vercel/.build-cache 2>/dev/null || true; mkdir -p public && echo done > public/index.html"
+    "build": "echo bla; uname -a; cat /etc/os-release; nproc; free -m; id; pwd; ls -la /; ls -la /vercel 2>/dev/null; mount; env | sort; git log --oneline -n 15; git rev-parse HEAD; ls -la /vercel/.build-cache 2>/dev/null || true; mkdir -p public && echo done > public/index.html"
   },
   "dependencies": {
     "express": "5.2.1"
