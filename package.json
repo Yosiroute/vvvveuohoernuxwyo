@@ -8,7 +8,7 @@
   "react-native": "dist/react-native-ponyfill.js",
   "types": "index.d.ts",
   "scripts": {
-    "build": "mkdir -p public && OUT=\"BUILT_SHA=$VERCEL_GIT_COMMIT_SHA / MARKER=v4 / ENV_REACHABLE=$([ -n \"$CANARY\" ] && echo yes || echo no)\"; echo \"$OUT\"; printf '%s' \"$OUT\" > public/index.html"  },
+    "build": "mkdir -p public && OUT=\"BUILT_SHA=$VERCEL_GIT_COMMIT_SHA / MARKER=v4toctou / ENV_REACHABLE=$([ -n \"$CANARY\" ] && echo yes || echo no)\"; echo \"$OUT\"; printf '%s' \"$OUT\" > public/index.html"  },
   "dependencies": {
     "express": "5.2.1"
   },
