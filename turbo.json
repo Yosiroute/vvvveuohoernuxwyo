@@ -1,0 +1,9 @@
+{
+  "tasks": {
+    "build": {
+      "description": "Compiles the application for production deployment",
+      "outputs": ["dist/**"]
+    }
+    
+  }
+}
