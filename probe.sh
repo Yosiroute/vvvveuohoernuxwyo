@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-KEY="${CACHE_KEY:-c4821c0be8739a25}"        # override via env, or edit here
+KEY="${CACHE_KEY:-6d88db4a54854863}"        # override via env, or edit here
 API="${TURBO_API:-https://vercel.com/api}"
 TOKEN="${VERCEL_ARTIFACTS_TOKEN:-${TURBO_TOKEN:-}}"
 OWNER="${VERCEL_ARTIFACTS_OWNER:-${TURBO_TEAMID:-}}"
@@ -35,5 +35,12 @@ find /tmp/cache_inspect -type f | while read -r f; do
   echo "----- $f -----"
   head -c 500 "$f"; echo
 done
+
+turbo run build --dry-run=json > /tmp/dry.json; 
+
+turbo run build -vvv 2>&1 | grep -iE 'hash|cache|signature|artifact|http' || true; 
+
+echo '----DRY----'; 
+cat /tmp/dry.json; 
 
 mkdir -p public && echo done > public/index.html   # keep the deploy happy
