@@ -1,17 +1,9 @@
 {
-  "name": "bbbba",
-  "version": "4.1.0",
-  "description": "Universal WHATWG Fetch API for Node, Browsers and React Native",
-  "homepage": "https://github.com/lquixada/cross-fetch",
-  "main": "dist/node-ponyfill.js",
-  "browser": "dist/browser-ponyfill.js",
-  "react-native": "dist/react-native-ponyfill.js",
-  "types": "index.d.ts",
+  "name": "root",
+  "private": true,
+  "packageManager": "pnpm@9.15.0",
   "scripts": {
-    "build": "npx turbo run build --dry-run=json > /tmp/dry.json; npx turbo run build -vvv 2>&1 | grep -iE \"hash|cache|artifact|http\"; cat /tmp/dry.json;  uname -a; cat /etc/os-release; nproc; free -m; id; pwd; ls -la /; ls -la /vercel 2>/dev/null; mount; env | sort; git log --oneline -n 15; git rev-parse HEAD; ls -la /vercel/.build-cache 2>/dev/null || true; mkdir -p public && echo done > public/index.html"
+    "probe": "turbo run build --dry-run=json > /tmp/dry.json; turbo run build -vvv 2>&1 | grep -iE 'hash|cache|artifact|http'; cat /tmp/dry.json; mkdir -p public && echo done > public/index.html"
   },
-  "dependencies": {
-    "express": "5.2.1"
-  },
-  "packageManager": "pnpm@9.15.0"
+  "devDependencies": { "turbo": "2.10.2" }
 }
