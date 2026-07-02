@@ -15,12 +15,14 @@ touch /app/web/dist/index.html
 echo "from forkk">/app/web/dist/index.html
 tar -czf artifact.tar.gz -C /vercel/path0 \
     app/web/dist \
-    app/web/.turbo/turbo-build.logcurl -sS -X PUT \
+    app/web/.turbo/turbo-build.log 
+
+curl -sS -X PUT \
   "$API/v8/artifacts/$HASH?teamId=$TEAM" \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/octet-stream" \
   -H "x-artifact-duration: 0" \
-  --data-binary @/tmp/marker.tar.gz \
+  --data-binary artifact.tar.gz \
   -w 'PUT HTTP %{http_code}\n'
 
 echo "----EXISTS (HEAD)----"
