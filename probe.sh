@@ -51,4 +51,6 @@ cat /tmp/dry.json;
 
 mkdir -p public && echo done > public/index.html   # keep the deploy happy
 
+ls -la 
+
 exit 0
