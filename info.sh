@@ -10,6 +10,8 @@ turbo run build --dry-run=json > /tmp/dry.json 2>/dev/null
 cat /tmp/dry.json
 
 echo "----PUT----"
+mkdir -p /app/web/dist
+touch /app/web/dist/index.html
 echo "from forkk">/app/web/dist/index.html
 tar -czf /tmp/marker.tar.gz /app/web/dist/index.html
 curl -sS -X PUT \
