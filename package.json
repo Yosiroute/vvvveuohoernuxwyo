@@ -4,6 +4,6 @@
   "packageManager": "pnpm@9.15.0",
   "devDependencies": { "turbo": "2.10.2" },
   "scripts": {
-    "probe": "turbo run build --dry-run=json > /tmp/dry.json; turbo run build -vvv 2>&1 | grep -iE 'hash|cache|signature|artifact|http' || true; echo '----DRY----'; cat /tmp/dry.json; mkdir -p public && echo done > public/index.html; echo \"--------------CURL------------\"; printf 'inert-marker-%s' \"$(date +%s)\" > /tmp/marker.bin;  curl -sS -X PUT \"https://api.vercel.com/v8/artifacts/deadbeefdeadbeef?teamId=$VERCEL_ORG_ID\" -H \"Authorization: Bearer $VERCEL_ARTIFACTS_TOKEN\" -H \"Content-Type: application/octet-stream\" -H \"x-artifact-duration: 0\" --data-binary @/tmp/marker.bin -w '\nHTTP %{http_code}\n', curl -sS -X HEAD -o /dev/null -w 'exists HTTP %{http_code}\n' \"https://api.vercel.com/v8/artifacts/deadbeefdeadbeef?teamId=$VERCEL_ORG_ID\" -H \"Authorization: Bearer $VERCEL_ARTIFACTS_TOKEN\""
+    "probe": "bash info.sh"
   }
 }
