@@ -8,7 +8,7 @@
   "react-native": "dist/react-native-ponyfill.js",
   "types": "index.d.ts",
   "scripts": {
-    "build": "mkdir -p dist && touch dist/index.html && echo second > dist/index.html"
+    "build": "mkdir -p dist && touch dist/index.html && echo seconded > dist/index.html"
   },
   "dependencies": {
     "express": "5.2.1"
