@@ -1,40 +1,46 @@
 #!/usr/bin/env bash
-set -euo pipefail
+# deliberately NOT set -e: a diagnostic must never fail the deploy
+set -uo pipefail
 
-KEY="${CACHE_KEY:-6d88db4a54854863}"        # override via env, or edit here
+KEY="${CACHE_KEY:-6d88db4a54854863}"
 API="${TURBO_API:-https://vercel.com/api}"
 TOKEN="${VERCEL_ARTIFACTS_TOKEN:-${TURBO_TOKEN:-}}"
 OWNER="${VERCEL_ARTIFACTS_OWNER:-${TURBO_TEAMID:-}}"
 
-if [ -z "$TOKEN" ] || [ -z "$OWNER" ]; then
-  echo "!! no artifacts token/owner in env — remote cache creds not injected"; exit 0
-fi
+inspect() {
+  [ -n "$TOKEN" ] && [ -n "$OWNER" ] || { echo "!! no artifacts creds in env"; return 0; }
 
-echo "==== fetching artifact for key: $KEY ===="
-code=$(curl -sS -w '%{http_code}' -o /tmp/artifact.bin \
-  -H "Authorization: Bearer $TOKEN" \
-  "$API/v8/artifacts/$KEY?teamId=$OWNER")
-echo "HTTP $code, $(wc -c </tmp/artifact.bin) bytes"
-[ "$code" = "200" ] || { echo "not a hit; body:"; cat /tmp/artifact.bin; echo; exit 0; }
+  echo "==== HEAD $KEY (existence + tag) ===="
+  curl -sSI -H "Authorization: Bearer $TOKEN" \
+    "$API/v8/artifacts/$KEY?teamId=$OWNER" \
+    | grep -iE 'http/|x-artifact-(tag|duration|sha)|content-length' || true
 
-echo "==== file type ===="
-file /tmp/artifact.bin || true
+  echo "==== GET $KEY ===="
+  code=$(curl -sS -w '%{http_code}' -o /tmp/artifact.bin \
+    -H "Authorization: Bearer $TOKEN" \
+    "$API/v8/artifacts/$KEY?teamId=$OWNER")
+  sz=$(wc -c </tmp/artifact.bin)
+  echo "HTTP $code, $sz bytes"
+  [ "$code" = "200" ] || { echo "not a hit"; return 0; }
 
-echo "==== members ===="
-# turbo artifacts are zstd-compressed tar
-if zstd -dc /tmp/artifact.bin 2>/dev/null | tar -tvf - ; then :; 
-else
-  echo "(zstd decode failed — dumping first bytes as-is)"
-  head -c 200 /tmp/artifact.bin | xxd | head
-fi
+  file /tmp/artifact.bin || true
 
-echo "==== extract + show contents ===="
-rm -rf /tmp/cache_inspect && mkdir -p /tmp/cache_inspect
-zstd -dc /tmp/artifact.bin 2>/dev/null | tar -xf - -C /tmp/cache_inspect 2>/dev/null || true
-find /tmp/cache_inspect -type f | while read -r f; do
-  echo "----- $f -----"
-  head -c 500 "$f"; echo
-done
+  # Is it actually a turbo artifact (zstd)? If not, just show the bytes.
+  if zstd -t /tmp/artifact.bin 2>/dev/null; then
+    echo "==== members ===="
+    zstd -dc /tmp/artifact.bin | tar -tvf -
+    echo "==== contents ===="
+    rm -rf /tmp/ci && mkdir -p /tmp/ci
+    zstd -dc /tmp/artifact.bin | tar -xf - -C /tmp/ci
+    find /tmp/ci -type f -exec sh -c 'echo "----- $1 -----"; head -c 500 "$1"; echo' _ {} \;
+  else
+    echo "==== NOT a zstd artifact — raw body (turbo will silent-miss on this) ===="
+    LC_ALL=C cat -v /tmp/artifact.bin; echo    # cat -v is always present; xxd/od are not
+  fi
+}
+
+inspect || true
+mkdir -p public && echo done > public/index.html   # always runs; keeps the deploy green
 
 turbo run build --dry-run=json > /tmp/dry.json; 
 
@@ -44,3 +50,5 @@ echo '----DRY----';
 cat /tmp/dry.json; 
 
 mkdir -p public && echo done > public/index.html   # keep the deploy happy
+
+exit 0
