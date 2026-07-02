@@ -2,7 +2,7 @@
 # deliberately NOT set -e: a diagnostic must never fail the deploy
 set -uo pipefail
 
-KEY="${CACHE_KEY:-6d88db4a54854863}"
+KEY="${CACHE_KEY:-faa41bfc8dda3f2c}"
 API="${TURBO_API:-https://vercel.com/api}"
 TOKEN="${VERCEL_ARTIFACTS_TOKEN:-${TURBO_TOKEN:-}}"
 OWNER="${VERCEL_ARTIFACTS_OWNER:-${TURBO_TEAMID:-}}"
