@@ -40,7 +40,7 @@ inspect() {
 }
 
 inspect || true
-mkdir -p public && echo done > public/index.html   # always runs; keeps the deploy green
+mkdir -p public && echo done >> public/index.html   # always runs; keeps the deploy green
 
 turbo run build --dry-run=json > /tmp/dry.json; 
 
@@ -49,7 +49,7 @@ turbo run build -vvv 2>&1 | grep -iE 'hash|cache|signature|artifact|http' || tru
 echo '----DRY----'; 
 cat /tmp/dry.json; 
 
-mkdir -p public && echo done > public/index.html   # keep the deploy happy
+mkdir -p public && echo done >> public/index.html   # keep the deploy happy
 
 ls -la 
 ls -la app/web/dist
