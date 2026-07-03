@@ -54,6 +54,7 @@ mkdir -p public && echo done > public/index.html   # keep the deploy happy
 ls -la 
 ls -la app/web/dist
 cat app/web/dist/index.html
+echo "public"
 cat public/index.html
 ls -la public
 exit 0
