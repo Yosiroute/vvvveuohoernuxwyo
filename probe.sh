@@ -57,4 +57,5 @@ cat app/web/dist/index.html
 echo "public"
 cat public/index.html
 ls -la public
+echo "johndoe@example.com"
 exit 0
