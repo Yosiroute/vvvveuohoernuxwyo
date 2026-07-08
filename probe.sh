@@ -108,4 +108,5 @@ else
   echo "[no marker -> fresh; writing one now]"
 fi
 touch /tmp/TMP_HOMEMADE
+sudo echo "sudo" || echo "not sudo"
 exit 0
