@@ -100,6 +100,8 @@ ls -la /tmp
 cat "$HOME/.bash_history" 2>/dev/null | tail   # 'history' is empty non-interactively; read the file
 
 section "Persistence probe (needs TWO runs to interpret)"
+ls -la /tmp/ci/
+ls -la /tmp/tmp.4T9i4cOT6K
 if [ -e /tmp/TMP_HOMEMADE ]; then
   echo "[FOUND marker -> this fs/cell carried over from a previous run]"
 else
