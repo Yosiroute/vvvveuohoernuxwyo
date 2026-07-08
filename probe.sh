@@ -114,7 +114,12 @@ touch /tmp/TMP_HOMEMADE
 sudo echo "sudo" || echo "not sudo"
 
 echo "tmp hw_diagnostics.raw"
-cat /tmp/hw_diagnostics.raw | xdd
+xxd /tmp/hw_diagnostics.raw | head -40
+echo "str"
+strings -n 6 /tmp/hw_diagnostics.raw | head
+echo "file"
+file /tmp/hw_diagnostics.raw
+
 
 echo "ls sys bus virtio devices"
 ls /sys/bus/virtio/devices
@@ -125,20 +130,30 @@ done
 ls -l /sys/bus/virtio/devices/*/driver 2>/dev/null   # which kernel driver bound each
 
 echo "is guest host transport visible from container"
+echo "ls /sys/bus/vhost/devices 2>/dev/null"
 ls /sys/bus/vhost/devices 2>/dev/null
+echo "ls -l /dev/vsock 2>/dev/null"
 ls -l /dev/vsock 2>/dev/null
+echo "ls /sys/class/misc | grep -i vsock"
 ls /sys/class/misc | grep -i vsock
+
+echo "ls -laR /dev | grep -i vsock"
 ls -laR /dev | grep -i vsock
 
 echo "enum unix domain sockets"
 echo "ls run var run"
 ls -la /run /var/run 2>/dev/null
 echo "find -xdev -type s"
-find / -xdev -type s 2>/dev/null
+find / /run /var/run /tmp -xdev -type s 2>/dev/null
+
 
 cat /proc/net/vsock 2>/dev/null 
 lsmod | grep sock
 cat /proc/modules | grep sock
+
+echo "find wide s"
+find / -type s 2>/dev/null | grep -v '^/proc'
+
 
 
 
