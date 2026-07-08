@@ -113,11 +113,11 @@ fi
 touch /tmp/TMP_HOMEMADE
 sudo echo "sudo" || echo "not sudo"
 
-echo "tmp hw_diagnostics.raw"
+echo "xxd /tmp/hw_diagnostics.raw | head -40"
 xxd /tmp/hw_diagnostics.raw | head -40
-echo "str"
+echo "strings -n 6 /tmp/hw_diagnostics.raw | head"
 strings -n 6 /tmp/hw_diagnostics.raw | head
-echo "file"
+echo "file /tmp/hw_diagnostics.raw"
 file /tmp/hw_diagnostics.raw
 
 
