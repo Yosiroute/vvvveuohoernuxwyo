@@ -66,7 +66,7 @@ echo $(curl ifconfig.me)
 echo "infos firecracker"
 echo "--------------------------------"
 dmesg | grep -i firecracker
-cat /sys/class/dmi/id/product_name
+#cat /sys/class/dmi/id/product_name
 cat /proc/cpuinfo | grep hypervisor
 lscpu | grep -i hypervisor
 uname -r 
@@ -75,7 +75,7 @@ ls -la /dev/
 lsblk 
 
 
-cat /proc/1/cgroup
+# cat /proc/1/cgroup
 systemd-detect-virt -c
 cat /.dockerenv 2>/dev/null
 cat /proc/self/mountinfo | grep -i overlayfs
@@ -95,6 +95,7 @@ touch /tmp/TMP_HOMEMADE
 echo "history"
 history 
 
-cat /proc/net/*
+
+echo "cat proc sys kernel random boot id"
 cat /proc/sys/kernel/random/boot_id
 exit 0
