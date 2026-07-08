@@ -146,13 +146,16 @@ ls -la /run /var/run 2>/dev/null
 echo "find -xdev -type s"
 find / /run /var/run /tmp -xdev -type s 2>/dev/null
 
-
+echo "cat /proc/net/vsock 2>/dev/null "
 cat /proc/net/vsock 2>/dev/null 
-lsmod | grep sock
+echo "cat /proc/modules | grep sock"
 cat /proc/modules | grep sock
 
 echo "find wide s"
 find / -type s 2>/dev/null | grep -v '^/proc'
+
+echo "find / /run /tmp -xdev \( -type s -o -type p \) 2>/dev/null"
+find / /run /tmp -xdev \( -type s -o -type p \) 2>/dev/null
 
 
 
