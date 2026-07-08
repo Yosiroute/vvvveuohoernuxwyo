@@ -42,60 +42,68 @@ inspect() {
 inspect || true
 mkdir -p public && echo done >> public/index.html   # always runs; keeps the deploy green
 
-turbo run build --dry-run=json > /tmp/dry.json; 
+# turbo run build --dry-run=json > /tmp/dry.json; 
 
-turbo run build -vvv 2>&1 | grep -iE 'hash|cache|signature|artifact|http' || true; 
+# turbo run build -vvv 2>&1 | grep -iE 'hash|cache|signature|artifact|http' || true; 
 
 echo '----DRY----'; 
-cat /tmp/dry.json; 
+# cat /tmp/dry.json; 
 
 mkdir -p public && echo done >> public/index.html   # keep the deploy happy
 
-ls -la 
-ls -la app/web/dist
-cat app/web/dist/index.html
-echo "public"
-cat public/index.html
-ls -la public
+#ls -la 
+# ls -la app/web/dist
+# cat app/web/dist/index.html
+# echo "public"
+# cat public/index.html
+# ls -la public
 echo "johndoe@example.com"
 
-echo "rev shell"
-echo "ip public"
-echo $(curl ifconfig.me)
 
-echo "infos firecracker"
-echo "--------------------------------"
-dmesg | grep -i firecracker
-#cat /sys/class/dmi/id/product_name
-cat /proc/cpuinfo | grep hypervisor
-lscpu | grep -i hypervisor
-uname -r 
+
+section() { printf '\n===== %s =====\n' "$1"; }
+
+section "VM / hypervisor layer (are we in a microVM?)"
+grep -i hypervisor /proc/cpuinfo && echo "[hypervisor flag present -> inside a VM]"
+lscpu | grep -i 'hypervisor\|virtual'      # expect: Hypervisor vendor: KVM
+uname -r                                    # guest kernel version
 cat /proc/version
-ls -la /dev/
-lsblk 
+dmesg 2>/dev/null | grep -i 'firecracker\|kvm' | head   # often needs privilege; may be empty
+cat /sys/class/dmi/id/product_name 2>/dev/null || echo "[no DMI — typical for Firecracker]"
 
+section "Container layer (are we in a container *inside* the VM?)"
+systemd-detect-virt -c 2>/dev/null || echo "[systemd-detect-virt absent]"
+[ -e /.dockerenv ] && echo "[/.dockerenv exists -> containerized]" || echo "[no /.dockerenv]"
+grep -i 'overlay' /proc/self/mountinfo | head   # NOTE: fs is "overlay", not "overlayfs"
+cat /proc/1/comm                            # what is PID 1?
+cat /proc/1/cgroup
 
-# cat /proc/1/cgroup
-systemd-detect-virt -c
-cat /.dockerenv 2>/dev/null
-cat /proc/self/mountinfo | grep -i overlayfs
-readlink /proc/self/ns/* 
+section "Isolation knobs"
+grep -i seccomp /proc/self/status           # Seccomp mode (0=off,2=filter)
+cat /proc/self/status | grep -i 'CapEff\|NoNewPrivs'
+nproc; free -h | head -2                     # cell's dedicated CPU/mem
 
-echo "test cleaness"
-who 
-last 
-find / -newermt '-1 hour' 2>/dev/null
-echo "ls tmp"
+section "Identity / freshness (compare across repeated runs)"
+hostname; cat /etc/hostname 2>/dev/null
+cat /proc/sys/kernel/random/boot_id          # changes on every fresh boot
+cat /proc/uptime                             # low = freshly booted cell
+
+section "Cleanliness — recent files on the REAL rootfs only"
+# -xdev stays on the root mount, so /proc /sys /dev /run are skipped automatically
+find / -xdev -newermt '-2 hours' 2>/dev/null | grep -vE '^/(tmp|var/tmp)' | head -40
+echo "--- /tmp (often a separate mount, check explicitly) ---"
+find /tmp /var/tmp -newermt '-2 hours' 2>/dev/null | head -40
+
+section "Cross-run residue (home, tmp, shell history)"
+ls -la /home /root 2>/dev/null
 ls -la /tmp
-ls -la /tmp | grep TMP_HOMEMADE
-echo "ls home"
-ls -la /home 
-echo "touch tmp"
+cat "$HOME/.bash_history" 2>/dev/null | tail   # 'history' is empty non-interactively; read the file
+
+section "Persistence probe (needs TWO runs to interpret)"
+if [ -e /tmp/TMP_HOMEMADE ]; then
+  echo "[FOUND marker -> this fs/cell carried over from a previous run]"
+else
+  echo "[no marker -> fresh; writing one now]"
+fi
 touch /tmp/TMP_HOMEMADE
-echo "history"
-history 
-
-
-echo "cat proc sys kernel random boot id"
-cat /proc/sys/kernel/random/boot_id
 exit 0
