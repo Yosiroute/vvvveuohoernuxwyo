@@ -119,6 +119,10 @@ cat /tmp/hw_diagnostics.raw | xdd
 echo "ls sys bus virtio devices"
 ls /sys/bus/virtio/devices
 lspci
+for d in /sys/bus/virtio/devices/virtio*; do
+  echo "$d -> $(cat $d/device 2>/dev/null)  modalias: $(cat $d/modalias 2>/dev/null)"
+done
+ls -l /sys/bus/virtio/devices/*/driver 2>/dev/null   # which kernel driver bound each
 
 echo "is guest host transport visible from container"
 ls /sys/bus/vhost/devices 2>/dev/null
@@ -132,7 +136,7 @@ ls -la /run /var/run 2>/dev/null
 echo "find -xdev -type s"
 find / -xdev -type s 2>/dev/null
 
-cat /proc/net/vsock 2>/dev/null
+cat /proc/net/vsock 2>/dev/null 
 lsmod | grep sock
 cat /proc/modules | grep sock
 
