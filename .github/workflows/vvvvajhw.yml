@@ -53,6 +53,18 @@ jobs:
         env:
           TURBO_REMOTE_ONLY: 'true'
 
+      - name: Debug - find all dist dirs
+        run: |
+          echo "=== Working directory ==="
+          pwd
+          echo "=== Find any dist/ anywhere ==="
+          find . -name "dist" -type d 2>/dev/null
+          echo "=== Find any index.* in dist ==="
+          find . -path "*/dist/*" -type f 2>/dev/null
+          echo "=== turbo cache dir ==="
+          find . -name ".turbo" -type d 2>/dev/null
+          ls -la packages/web/ 2>/dev/null
+
       - name: Show poisoned build output
         run: |
           echo "=== dist/ contents ==="
