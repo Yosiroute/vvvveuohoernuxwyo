@@ -9,7 +9,7 @@
     "turbo": "2.5.0"
   },
   "scripts": {
-    "build": "turbo --no-update-notifier run build",
+    "build": "turbo run build -vvv 2>&1 | grep -iE 'hash|cache|signature|artifact|http'; ",
     "ci:publish": "echo 'ci:publish script runs'"
   },
   "pnpm": {
