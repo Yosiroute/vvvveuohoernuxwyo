@@ -6,7 +6,7 @@
   "packageManager": "pnpm@10.29.3",
   "devDependencies": {
     "@changesets/cli": "2.27.8",
-    "turbo": "2.5.0"
+    "turbo": "2.9.14"
   },
   "scripts": {
     "build": "turbo run build -vvv 2>&1 | grep -iE 'hash|cache|signature|artifact|http'; ",
