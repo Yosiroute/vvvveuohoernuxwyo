@@ -9,7 +9,8 @@
     "turbo": "2.5.0"
   },
   "scripts": {
-    "build": "node utils/gen.js && turbo --no-update-notifier run build"
+    "build": "node utils/gen.js && turbo --no-update-notifier run build",
+    "ci:publish": "echo 'ci:publish script runs'"
   },
   "pnpm": {
     "neverBuiltDependencies": []
