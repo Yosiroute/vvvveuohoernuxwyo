@@ -53,25 +53,15 @@ jobs:
         env:
           TURBO_REMOTE_ONLY: 'true'
 
-      - name: Debug - find all dist dirs
-        run: |
-          echo "=== Working directory ==="
-          pwd
-          echo "=== Find any dist/ anywhere ==="
-          find . -name "dist" -type d 2>/dev/null
-          echo "=== Find any index.* in dist ==="
-          find . -path "*/dist/*" -type f 2>/dev/null
-          echo "=== turbo cache dir ==="
-          find . -name ".turbo" -type d 2>/dev/null
-          ls -la packages/web/ 2>/dev/null
-
       - name: Show poisoned build output
         run: |
           echo "=== dist/ contents ==="
           ls -la packages/web/dist/
           echo "=== index.js ==="
           cat packages/web/dist/index.js
-
+          echo "=== package.json ==="
+          cat packages/web/dist/package.json
+          
       - name: Create Release Pull Request or Publish to npm
         id: changesets
         uses: changesets/action@a45c4d594aa4e2c509dc14a9f2b3b67ba3780d0d # v1.9.0
