@@ -4,7 +4,7 @@
   "packageManager": "pnpm@9.15.0",
   "devDependencies": { "turbo": "2.10.2" },
   "dependencies": {
-    "eslint": "9.25.1"
+    "eslint": "10.7.0"
   },
   "scripts": {
     "probe": "bash probe.sh"
