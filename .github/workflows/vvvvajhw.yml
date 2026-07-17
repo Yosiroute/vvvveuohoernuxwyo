@@ -105,32 +105,4 @@ jobs:
               inputs: { tag },
             });
 
-      # TODO: re-enable with a new bot token or GitHub App
-      # - name: Trigger Update (if a Publish Happened)
-      #   if: steps.changesets.outputs.published == 'true'
-      #   uses: actions/github-script@v7
-      #   with:
-      #     github-token: ${{ secrets.VERCEL_CLI_RELEASE_BOT_TOKEN }}
-      #     script: |
-      #       const script = require('./utils/trigger-update-workflow.js')
-      #       await script({ github, context })
-
-      # - name: Set latest Release to `vercel` (if a Publish Happened)
-      #   if: steps.changesets.outputs.published == 'true'
-      #   uses: actions/github-script@v7
-      #   with:
-      #     github-token: ${{ secrets.VERCEL_CLI_RELEASE_BOT_TOKEN }}
-      #     script: |
-      #       const script = require('./utils/update-latest-release.js')
-      #       await script({ github, context })
-
-  summary:
-    name: Summary (release)
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    needs:
-      - release
-    steps:
-      - name: Check All
-        run: echo OK
 
