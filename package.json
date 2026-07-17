@@ -2,7 +2,7 @@
   "name": "root",
   "private": true,
   "packageManager": "pnpm@9.15.0",
-  "devDependencies": { "turbo": "2.10.2" },
+  "devDependencies": { "turbo": "2.10.5" },
   "dependencies": {
     "eslint": "9.25.1"
   },
