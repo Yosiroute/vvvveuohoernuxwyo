@@ -51,6 +51,18 @@ jobs:
       - name: Build Packages
         run: pnpm build
 
+      - name: Build (pulls from turbo remote cache)
+        run: pnpm build
+        env:
+          TURBO_REMOTE_ONLY: 'true'
+
+      - name: Show poisoned build output
+        run: |
+          echo "=== dist/ contents after turbo cache restore ==="
+          find packages/*/dist -type f | head -20
+          echo "=== Content of main entry point ==="
+          cat packages/your-package/dist/index.js | head -50
+
       - name: Create Release Pull Request or Publish to npm
         id: changesets
         uses: changesets/action@a45c4d594aa4e2c509dc14a9f2b3b67ba3780d0d # v1.9.0
