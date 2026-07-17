@@ -48,9 +48,6 @@ jobs:
       - name: Install Dependencies
         run: pnpm install 
 
-      - name: Build Packages
-        run: pnpm build
-
       - name: Build (pulls from turbo remote cache)
         run: pnpm build
         env:
