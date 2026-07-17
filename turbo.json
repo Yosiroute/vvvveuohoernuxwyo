@@ -1,8 +1,17 @@
 {
+  "$schema": "https://turborepo.org/schema.json",
+  "globalDependencies": [
+    "package.json"
+  ],
+  "envMode": "loose",
   "tasks": {
     "build": {
-      "outputs": ["dist/**"],
-      "env": ["VERCEL_TARGET_ENV"]
+      "dependsOn": ["^build"],
+      "outputLogs": "new-only",
+      "outputs": ["dist/**"]
+    },
+    "source": {
+      "dependsOn": ["^source"]
     }
   }
 }

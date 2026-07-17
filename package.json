@@ -1,12 +1,17 @@
 {
-  "name": "root",
+  "name": "vvvvuywiq",
+  "version": "0.0.0",
   "private": true,
-  "packageManager": "pnpm@9.15.0",
-  "devDependencies": { "turbo": "2.10.2" },
-  "dependencies": {
-    "eslint": "9.25.1"
+  "license": "Apache-2.0",
+  "packageManager": "pnpm@10.29.3",
+  "devDependencies": {
+    "@changesets/cli": "2.27.8",
+    "turbo": "2.5.0"
   },
   "scripts": {
-    "probe": "bash probe.sh"
+    "build": "node utils/gen.js && turbo --no-update-notifier run build"
+  },
+  "pnpm": {
+    "neverBuiltDependencies": []
   }
 }
